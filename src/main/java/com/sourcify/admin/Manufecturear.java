@@ -3,7 +3,7 @@ package com.sourcify.admin;
 public class Manufecturear {
 	int 	manuId;
 	String 	manuName, productType, website, email,repName, repDeg, repEmail, repPhone, bank, branch, accName, accType, 
-			accNumber, accRoutingNum, coDivision, coDistrict, coUpozla, coLocation, facDivision, facDictrict, facUpozela, 
+			accNumber, accRoutingNum, coDivision, coDistrict, coUpozla, coLocation, facDivision, facDistrict, facUpozela, 
 			facLocation, username, password, status, comments, manuPicture;
 	
 	
@@ -15,7 +15,7 @@ public class Manufecturear {
 	public Manufecturear(int manuId, String manuName, String productType, String website, String email, String repName,
 			String repDeg, String repEmail, String repPhone, String bank, String branch, String accName, String accType,
 			String accNumber, String accRoutingNum, String coDivision, String coDistrict, String coUpozla,
-			String coLocation, String facDivision, String facDictrict, String facUpozela, String facLocation,
+			String coLocation, String facDivision, String facDistrict, String facUpozela, String facLocation,
 			String username, String password, String status, String comments, String manuPicture) {
 		super();
 		this.manuId = manuId;
@@ -38,7 +38,7 @@ public class Manufecturear {
 		this.coUpozla = coUpozla;
 		this.coLocation = coLocation;
 		this.facDivision = facDivision;
-		this.facDictrict = facDictrict;
+		this.facDistrict = facDistrict;
 		this.facUpozela = facUpozela;
 		this.facLocation = facLocation;
 		this.username = username;
@@ -208,12 +208,12 @@ public class Manufecturear {
 		this.facDivision = facDivision;
 	}
 
-	public String getFacDictrict() {
-		return facDictrict;
+	public String getFacDistrict() {
+		return facDistrict;
 	}
 
-	public void setFacDictrict(String facDictrict) {
-		this.facDictrict = facDictrict;
+	public void setFacDistrict(String facDistrict) {
+		this.facDistrict = facDistrict;
 	}
 
 	public String getFacUpozela() {

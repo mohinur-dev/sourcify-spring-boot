@@ -1,25 +1,29 @@
 package com.sourcify.admin;
 
 public class AdminSignin {
-	String username;
-	String password;
-	String name;
-    String role;
-    String email;
+	public int id;
+	public String username;
+	public String password;
 	
 	
-
-	public AdminSignin(String username, String password, String name, String role, String email) {
-		super();
-		this.username = username;
-		this.password = password;
-		this.name = name;
-		this.role = role;
-		this.email = email;
-	}
-
+	
 	public AdminSignin() {
 		super();
+	}
+
+	public AdminSignin(int id, String username, String password) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.password = password;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getUsername() {
@@ -37,30 +41,5 @@ public class AdminSignin {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-	
 	
 }

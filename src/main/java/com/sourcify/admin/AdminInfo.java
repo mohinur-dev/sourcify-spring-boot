@@ -6,15 +6,17 @@ public class AdminInfo {
     String role;
     String email;
     String username;
+    String password;
     String picture;
     
-	public AdminInfo(int id, String name, String role, String email, String username, String picture) {
+	public AdminInfo(int id, String name, String role, String email, String username, String password, String picture) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.role = role;
 		this.email = email;
 		this.username = username;
+		this.password = password;
 		this.picture = picture;
 	}
 
@@ -62,6 +64,13 @@ public class AdminInfo {
 		this.username = username;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
 	public String getPicture() {
 		return picture;
 	}

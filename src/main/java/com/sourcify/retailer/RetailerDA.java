@@ -5,18 +5,27 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.sourcify.email.EmailSenderService;
+import com.sourcify.manufecturear.Product;
 import com.sourcify.util.db;
 
-
+@Service
 public class RetailerDA {
 	Connection con;
 	PreparedStatement pst;
 	
+	@Autowired
+	EmailSenderService mail;
+	
 	public RetailerSignin retailerSignin(RetailerSignin retailer) {
 		RetailerSignin info = null;
 		try {
-			pst = db.get().prepareStatement("SELECT * FROM retailer WHERE username=? AND password=?");
-//			pst = db.get().prepareStatement("SELECT * FROM retailer WHERE username=? AND password=? AND status='Active'");
+//			pst = db.get().prepareStatement("SELECT * FROM retailer WHERE username=? AND password=?");
+			pst = db.get().prepareStatement("SELECT * FROM retailer WHERE username=? AND password=? AND status='Active'");
 			pst.setString(1, retailer.username);
 			pst.setString(2, retailer.password);
 			ResultSet rs = pst.executeQuery();
@@ -84,7 +93,7 @@ public class RetailerDA {
 		pList = new ArrayList<>();
 		RetailerProduct pdt;
 		try {
-			pst = db.get().prepareStatement("SELECT p.p_id, p.manu_id, m.manu_name, p.p_name, p.p_generic, p.price, p.stock, p.picture, p.p_description, p.p_status FROM products p JOIN manufecturear m ON p.manu_id = m.manu_id");
+			pst = db.get().prepareStatement("SELECT p.p_id, p.manu_id, m.manu_name, p.p_name, p.p_generic, p.price, p.stock, p.picture, p.p_description, p.p_status FROM products p JOIN manufecturear m ON p.manu_id = m.manu_id WHERE p.p_status = 'Active'");
 			ResultSet rs = pst.executeQuery();
 			while (rs.next()) {
 				pdt = new RetailerProduct(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4),rs.getString(5), rs.getDouble(6), rs.getInt(7), rs.getString(8), rs.getString(9), rs.getString(10));
@@ -263,6 +272,9 @@ public class RetailerDA {
 		} catch(Exception e) {
 			System.out.println(e);
 		}
+		
+		
+		
 		return a;
 	}
 	
@@ -442,4 +454,129 @@ public class RetailerDA {
 			System.out.println(" " + e);
 		}
 	}
+	
+	//search product by name
+	public List<Product> searchProduct(String pdt) {
+		List<Product> productList = new ArrayList<>();
+		Product searchItem;
+        try {
+            pst = db.get().prepareStatement("SELECT * FROM products WHERE p_name LIKE ? ");
+            pst.setString(1, "%" + pdt + "%");
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+            	searchItem = new Product();
+            	searchItem.setpId(rs.getString(1));
+            	searchItem.setManuId(rs.getString(2));
+            	searchItem.setpName(rs.getString(3));
+            	searchItem.setpGeneric(rs.getString(4));
+            	searchItem.setuPrice(rs.getDouble(5));
+            	searchItem.setpStock(rs.getInt(6));
+            	searchItem.setpPicture(rs.getString(7));
+            	searchItem.setpDescription(rs.getString(8));
+            	searchItem.setpStatus(rs.getString(9));
+            	productList.add(searchItem);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+		return productList;
+	}
+	
+	//update order quantity
+	public void updateProductQuantity(int productId, int qty, boolean plus) {
+		try {
+			pst = db.get().prepareStatement("UPDATE products SET stock = stock + ? WHERE p_id = ?");
+			if(plus) {
+				pst.setInt(1, qty);
+			} else {
+				pst.setInt(1, -qty);
+			}
+			pst.setInt(2, productId);
+			pst.executeUpdate();
+		} catch (Exception e ) {
+			System.out.println(e);
+		}
+	}
+	
+	//get related products
+	public List<Product>relatedProductList(String pdt) {
+		List<Product> relatedProduct = new ArrayList<>();
+		Product relPro;
+		try {
+			pst = db.get().prepareStatement("SELECT * FROM products WHERE p_generic LIKE ? ");
+			pst.setString(1, "%" + pdt + "%");
+			ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+            	relPro = new Product();
+            	relPro.setpId(rs.getString(1));
+            	relPro.setManuId(rs.getString(2));
+            	relPro.setpName(rs.getString(3));
+            	relPro.setpGeneric(rs.getString(4));
+            	relPro.setuPrice(rs.getDouble(5));
+            	relPro.setpStock(rs.getInt(6));
+            	relPro.setpPicture(rs.getString(7));
+            	relPro.setpDescription(rs.getString(8));
+            	relPro.setpStatus(rs.getString(9));
+            	relatedProduct.add(relPro);
+            }
+		} catch(Exception e) {
+			System.out.println("can't get related product");
+		}
+		return relatedProduct;
+	}
+	
+	
+	//add to product request
+	public ProductRequest addProductRequest(ProductRequest pr) {
+		try {
+			pst = db.get().prepareStatement("INSERT INTO product_request(pr_name, pr_generic, pr_manu_id, pr_manu_name, pr_manu_email, pr_ret_id, pr_ret_name, pr_ret_email, pr_quantity, pr_picture, pr_status) "
+					+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			pst.setString(1, pr.prName);
+			pst.setString(2, pr.prGeneric);
+			pst.setInt(3, pr.prManuId);
+			pst.setString(4, pr.prManuName);
+			pst.setString(5, pr.prManuEmail);
+			pst.setInt(6, pr.prRetId);
+			pst.setString(7, pr.prRetName);
+			pst.setString(8, pr.prRetEmail);
+			pst.setInt(9, pr.prQuantity);
+			pst.setString(10, pr.prPicture);
+			pst.setString(11, pr.prStatus);
+			int x = pst.executeUpdate();
+			if( x != -1) {
+				return pr;
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		
+		mail.sentEmail(
+				pr.prRetEmail, 
+				"Product Request Submitted",
+				"Your product request succesfully submitted"
+				);
+	
+		
+		return null;
+	}
+	
+	
+	//get products request
+	public List<ProductRequest>getProductRequest(int id) {
+		List<ProductRequest> getProduct = new ArrayList<>();
+		ProductRequest pdtReq;
+		try {
+			pst = db.get().prepareStatement("SELECT * FROM product_request WHERE pr_ret_id = ? ");
+			pst.setInt(1, id);
+			ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+            	pdtReq = new ProductRequest(rs.getInt(1),rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6), rs.getInt(7), rs.getString(8), rs.getString(9), rs.getInt(10), rs.getString(11), rs.getString(12));
+            	getProduct.add(pdtReq);
+            }
+		} catch(Exception e) {
+			System.out.println("can't get product request");
+		}
+		return getProduct;
+	}
+	
 }

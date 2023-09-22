@@ -6,13 +6,14 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import com.sourcify.retailer.Order;
+import com.sourcify.retailer.ProductRequest;
 import com.sourcify.util.db;
 
 public class AdminDA {
 	Connection con;
 	PreparedStatement pst;
-	
-	// admin's sign in 
+
+	// admin's sign in
 	public AdminSignin adminSignin(AdminSignin admin) {
 		AdminSignin info = null;
 		try {
@@ -22,19 +23,40 @@ public class AdminDA {
 			ResultSet rs = pst.executeQuery();
 			if (rs.next()) {
 				info = new AdminSignin();
+				info.setId(rs.getInt(1));
 				info.setUsername(rs.getString(5));
 				info.setPassword(rs.getString(6));
-				info.setEmail(rs.getString(4));
-				info.setName(rs.getString(2));
-				info.setRole(rs.getString(3));
 			}
 		} catch (Exception e) {
 			System.out.println(e);
 		}
 		return info;
 	}
-	
-	//get retailer information
+
+	// get admin's information
+	public AdminInfo getAdminInfoById(int id) {
+		AdminInfo info = null;
+		try {
+			pst = db.get().prepareStatement("SELECT * FROM admin WHERE id = ?");
+			pst.setInt(1, id);
+			ResultSet rs = pst.executeQuery();
+			while (rs.next()) {
+				info = new AdminInfo();
+				info.setId(rs.getInt(1));
+				info.setName(rs.getString(2));
+				info.setRole(rs.getString(3));
+				info.setEmail(rs.getString(4));
+				info.setUsername(rs.getString(5));
+				info.setPassword(rs.getString(6));
+				info.setPicture(rs.getString(7));
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return info;
+	}
+
+	// get retailer information
 	public List<Retailer> getRetailerInfo() {
 		List<Retailer> getRetailerList = new ArrayList<>();
 		Retailer info;
@@ -65,15 +87,15 @@ public class AdminDA {
 				info.setStatus(rs.getString(20));
 				info.setRetPicture(rs.getString(21));
 				getRetailerList.add(info);
-				
+
 			}
 		} catch (Exception e) {
 			System.out.println(e);
 		}
 		return getRetailerList;
 	}
-	
-	//get retailer info by retailer id
+
+	// get retailer info by retailer id
 	public Retailer getRetailerInfoById(int id) {
 		Retailer info = null;
 		try {
@@ -110,7 +132,7 @@ public class AdminDA {
 		return info;
 	}
 
-	//get manufacturer information 
+	// get manufacturer information
 	public List<Manufecturear> getManufecturearInfo() {
 		List<Manufecturear> getManufecturearList = new ArrayList<>();
 		Manufecturear info;
@@ -139,7 +161,7 @@ public class AdminDA {
 				info.setCoUpozla(rs.getString(18));
 				info.setCoLocation(rs.getString(19));
 				info.setFacDivision(rs.getString(20));
-				info.setFacDictrict(rs.getString(21));
+				info.setFacDistrict(rs.getString(21));
 				info.setFacUpozela(rs.getString(22));
 				info.setFacLocation(rs.getString(23));
 				info.setUsername(rs.getString(24));
@@ -154,12 +176,13 @@ public class AdminDA {
 		}
 		return getManufecturearList;
 	}
-	
-	//get manufacturer info by id
+
+	// get manufacturer info by id
 	public Manufecturear getManufecturearInfoById(int id) {
 		Manufecturear info = null;
 		try {
-			pst = db.get().prepareStatement("SELECT manu_id, manu_name, product_type, website, email, rep_name, rep_deg, rep_email, rep_phone, bank, branch, acc_name, acc_type, acc_number, acc_routing_num, co_division, co_district, co_upozla, co_location, fac_division, fac_district, fac_upozela, fac_location, username, password, status, comments, manu_picture FROM manufecturear WHERE manu_id = ?");
+			pst = db.get().prepareStatement(
+					"SELECT manu_id, manu_name, product_type, website, email, rep_name, rep_deg, rep_email, rep_phone, bank, branch, acc_name, acc_type, acc_number, acc_routing_num, co_division, co_district, co_upozla, co_location, fac_division, fac_district, fac_upozela, fac_location, username, password, status, comments, manu_picture FROM manufecturear WHERE manu_id = ?");
 			pst.setInt(1, id);
 			ResultSet rs = pst.executeQuery();
 			while (rs.next()) {
@@ -184,7 +207,7 @@ public class AdminDA {
 				info.setCoUpozla(rs.getString(18));
 				info.setCoLocation(rs.getString(19));
 				info.setFacDivision(rs.getString(20));
-				info.setFacDictrict(rs.getString(21));
+				info.setFacDistrict(rs.getString(21));
 				info.setFacUpozela(rs.getString(22));
 				info.setFacLocation(rs.getString(23));
 				info.setUsername(rs.getString(24));
@@ -198,15 +221,15 @@ public class AdminDA {
 		}
 		return info;
 	}
-	
-	//get all order information
+
+	// get all order information
 	public List<Order> getOrderList() {
 		List<Order> getOrderInfo = new ArrayList<>();
 		Order odr;
 		try {
 			pst = db.get().prepareStatement("SELECT * FROM orders");
 			ResultSet rs = pst.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				odr = new Order();
 				odr.setoId(rs.getInt(1));
 				odr.setoDate(rs.getDate(2));
@@ -225,31 +248,51 @@ public class AdminDA {
 				odr.setSubtotal(rs.getDouble(15));
 				getOrderInfo.add(odr);
 			}
-			
-		} catch(Exception e ) {
+
+		} catch (Exception e) {
 			System.out.println(e);
 		}
-		
+
 		return getOrderInfo;
 	}
-	
-	//update retailer informations
+
+	// update retailer informations
 	public void updateRetailer(Retailer rtl) {
 		try {
-			pst = db.get().prepareStatement("p_id, manu_id, p_name, p_generic, price, stock, picture, p_description, p_status, manu_name WHERE id = ?");
-		
+			pst = db.get().prepareStatement("UPDATE retailer SET name = ?, catagory = ?, business_type = ?, trade_lisence = ?, str_devision = ?, str_district = ?, str_upozela = ?, str_location = ?, del_divison = ?, del_district = ?, del_upozela = ?, del_location = ?, owner_name = ?, username = ?, email = ?, phone = ?, password = ?, comment = ?, status = ?, ret_picture = ? WHERE id = ?");
+			pst.setString(1, rtl.name);
+			pst.setString(2, rtl.catagory);
+			pst.setString(3, rtl.businessType);
+			pst.setString(4, rtl.tradeLisence);
+			pst.setString(5, rtl.strDevision);
+			pst.setString(6, rtl.strDistrict);
+			pst.setString(7, rtl.strUpozela);
+			pst.setString(8, rtl.strLocation);
+			pst.setString(9, rtl.delDivison);
+			pst.setString(10, rtl.delDistrict);
+			pst.setString(11, rtl.delUpozela);
+			pst.setString(12, rtl.delLocation);
+			pst.setString(13, rtl.ownerName);
+			pst.setString(14, rtl.username);
+			pst.setString(15, rtl.email);
+			pst.setString(16, rtl.phone);
+			pst.setString(17, rtl.password);
+			pst.setString(18, rtl.comment);
+			pst.setString(19, rtl.status);
+			pst.setString(20, rtl.retPicture);
+			pst.setInt(21, rtl.id);
 			pst.executeUpdate();
-			
 		} catch (Exception ex) {
 			System.out.println(ex);
 		}
-		
+
 	}
-	
-	//update manufacturer informations
+
+	// update manufacturer informations
 	public void updateManufecturear(Manufecturear mnf) {
 		try {
-			pst = db.get().prepareStatement("UPDATE manufecturear SET manu_name = ?, product_type = ?, website = ?, email = ?, rep_name = ?, rep_deg = ?, rep_email = ?, rep_phone = ?, bank = ?, branch = ?, acc_name = ?, acc_type = ?, acc_number = ?, acc_routing_num = ?, co_division = ?, co_district = ?, co_upozla = ?, co_location = ?, fac_division = ?, fac_district = ?, fac_upozela = ?, fac_location = ?, username = ?, password = ?, status = ?, comments = ?, manu_picture = ? WHERE manu_id = ?");
+			pst = db.get().prepareStatement(
+					"UPDATE manufecturear SET manu_name = ?, product_type = ?, website = ?, email = ?, rep_name = ?, rep_deg = ?, rep_email = ?, rep_phone = ?, bank = ?, branch = ?, acc_name = ?, acc_type = ?, acc_number = ?, acc_routing_num = ?, co_division = ?, co_district = ?, co_upozla = ?, co_location = ?, fac_division = ?, fac_district = ?, fac_upozela = ?, fac_location = ?, username = ?, password = ?, status = ?, comments = ?, manu_picture = ? WHERE manu_id = ?");
 			pst.setString(1, mnf.manuName);
 			pst.setString(2, mnf.productType);
 			pst.setString(3, mnf.website);
@@ -269,7 +312,7 @@ public class AdminDA {
 			pst.setString(17, mnf.coUpozla);
 			pst.setString(18, mnf.coLocation);
 			pst.setString(19, mnf.facDivision);
-			pst.setString(20, mnf.facDictrict);
+			pst.setString(20, mnf.facDistrict);
 			pst.setString(21, mnf.facUpozela);
 			pst.setString(22, mnf.facLocation);
 			pst.setString(23, mnf.username);
@@ -278,19 +321,21 @@ public class AdminDA {
 			pst.setString(26, mnf.comments);
 			pst.setString(27, mnf.manuPicture);
 			pst.setInt(28, mnf.manuId);
-			pst.executeUpdate();			
-		} catch(Exception e) {
+			pst.executeUpdate();
+		} catch (Exception e) {
 			System.out.println(e);
 		}
 	}
-	
-	//show all product to 
+
+	// show all product to
 	public List<AdminProduct> pList;
+
 	public List<AdminProduct> showProductToAdmin() {
 		pList = new ArrayList<>();
 		AdminProduct pdt;
 		try {
-			pst = db.get().prepareStatement("SELECT p.p_id, p.manu_id, m.manu_name, p.p_name, p.p_generic, p.price, p.stock, p.picture, p.p_description, p.p_status FROM products p JOIN manufecturear m ON p.manu_id = m.manu_id");
+			pst = db.get().prepareStatement(
+					"SELECT p.p_id, p.manu_id, m.manu_name, p.p_name, p.p_generic, p.price, p.stock, p.picture, p.p_description, p.p_status FROM products p JOIN manufecturear m ON p.manu_id = m.manu_id");
 			ResultSet rs = pst.executeQuery();
 			while (rs.next()) {
 				pdt = new AdminProduct();
@@ -311,12 +356,13 @@ public class AdminDA {
 		}
 		return pList;
 	}
-	
-	//get product information by id
+
+	// get product information by id
 	public AdminProduct getProductInformationById(int id) {
 		AdminProduct pdt = null;
 		try {
-			pst = db.get().prepareStatement("SELECT p.p_id, p.manu_id, m.manu_name, p.p_name, p.p_generic, p.price, p.stock, p.picture, p.p_description, p.p_status FROM products p JOIN manufecturear m ON p.manu_id = m.manu_id WHERE p.p_id = ?");
+			pst = db.get().prepareStatement(
+					"SELECT p.p_id, p.manu_id, m.manu_name, p.p_name, p.p_generic, p.price, p.stock, p.picture, p.p_description, p.p_status FROM products p JOIN manufecturear m ON p.manu_id = m.manu_id WHERE p.p_id = ?");
 			pst.setInt(1, id);
 			ResultSet rs = pst.executeQuery();
 			while (rs.next()) {
@@ -337,8 +383,50 @@ public class AdminDA {
 		}
 		return pdt;
 	}
+
+	// update product information
+	// 
 	
-	//update product information
+
+	// update order
+	public void updateOrderInformation(Order odr) {
+		try {
+			pst = db.get().prepareStatement(
+					"UPDATE orders SET o_amount = ?, discount = ?, vat = ?, net_payable = ?, del_devision = ?, del_district = ?, del_upozela = ?, del_location = ?, del_date = ?, status = ?, subtotal = ? WHERE o_id = ?");
+			pst.setDouble(1, odr.getoAmount());
+			pst.setDouble(2, odr.getDiscount());
+			pst.setDouble(3, odr.getVat());
+			pst.setDouble(4, odr.getNetPayable());
+			pst.setString(5, odr.getDelDevision());
+			pst.setString(6, odr.getDelDistrict());
+			pst.setString(7, odr.getDelUpozela());
+			pst.setString(8, odr.getDelLocation());
+			pst.setDate(9, odr.getDelDate());
+			pst.setString(10, odr.getStatus());
+			pst.setDouble(11, odr.getSubtotal());
+			pst.setInt(12, odr.getoId());
+			pst.executeUpdate();
+
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
 	
+	//get products request
+	public List<ProductRequest>getAllProductRequest() {
+		List<ProductRequest> getProduct = new ArrayList<>();
+		ProductRequest pdtReq;
+		try {
+			pst = db.get().prepareStatement("SELECT * FROM product_request");
+			ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+            	pdtReq = new ProductRequest(rs.getInt(1),rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5), rs.getString(6), rs.getInt(7), rs.getString(8), rs.getString(9), rs.getInt(10), rs.getString(11), rs.getString(12));
+            	getProduct.add(pdtReq);
+            }
+		} catch(Exception e) {
+			System.out.println("can't get product request");
+		}
+		return getProduct;
+	}
 
 }
